@@ -84,7 +84,11 @@ class QAgent:
         if explore and self.rng.random() < self.epsilon:
             index = self.rng.randrange(n_actions)
         else:
-            index = int(np.argmax(self.q[state]))
+            # choose randomly among tied best actions to avoid deterministic stuck behavior
+            qvals = self.q[state]
+            max_val = np.max(qvals)
+            best = np.flatnonzero(np.isclose(qvals, max_val)).tolist()
+            index = int(self.rng.choice(best))
 
         move_idx, msg = self._decode_action(index)
         return move_idx, msg, index

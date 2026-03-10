@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import pickle
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
@@ -52,6 +53,27 @@ def train(
         total_reward, info = run_episode(env, agents, explore)
         episode_rewards.append(sum(total_reward.values()) / env.n_agents)
         success_rate.append(1.0 if len(info["collected"]) > 0 else 0.0)
+
+    # save model (Q-tables + env config)
+    model = {
+        "env_kwargs": {
+            "width": env.width,
+            "height": env.height,
+            "n_agents": env.n_agents,
+            "n_resources": env.n_resources,
+            "vision_radius": env.vision_radius,
+            "max_steps": env.max_steps,
+            "communication_enabled": env.communication_enabled,
+            "communication_vocab_size": env.communication_vocab_size,
+            "communication_cost": env.communication_cost,
+            "step_penalty": env.step_penalty,
+            "collision_penalty": env.collision_penalty,
+            "resource_reward": env.resource_reward,
+        },
+        "q_tables": {str(aid): agent.q for aid, agent in agents.items()},
+    }
+    with open(os.path.join(output_dir, "model.pkl"), "wb") as f:
+        pickle.dump(model, f)
 
     if plot:
         plt.plot(episode_rewards, label="avg reward")

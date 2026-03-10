@@ -14,6 +14,8 @@ venv/
 
 # Data / results
 results/
+models/
+*.pkl
 
 # macOS
 .DS_Store

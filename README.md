@@ -22,14 +22,34 @@ pip install -r requirements.txt
 2. Run the baseline training (no communication):
 
 ```bash
-python -m experiments.train_baseline --episodes 200
+python -m experiments.train_baseline --episodes 200 --plot
 ```
+
+The run will save a trained model at `results/baseline/model.pkl`.
 
 3. Run the communication-enabled training:
 
 ```bash
-python -m experiments.train_comm --episodes 200
+python -m experiments.train_comm --episodes 200 --plot
 ```
+
+The run will save a trained model at `results/comm/model.pkl`.
+
+4. Run inference using a saved model:
+
+Text rendering (console):
+
+```bash
+python -m experiments.inference --model results/comm/model.pkl --episodes 1 --render text
+```
+
+Graphical rendering (pygame):
+
+```bash
+python -m experiments.inference --model results/comm/model.pkl --episodes 1 --render pygame
+```
+
+If `pygame` is not installed, it will fall back to text rendering.
 
 ## Notes
 
