@@ -7,7 +7,7 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 
-from env.grid_world import Action
+from env.police_bomb_env import Action
 
 
 class QAgent:
@@ -18,6 +18,8 @@ class QAgent:
         learning_rate: float = 0.1,
         discount: float = 0.99,
         epsilon: float = 0.1,
+        min_epsilon: float = 0.01,
+        epsilon_decay: float = 0.995,
         seed: Optional[int] = None,
         q_table: Optional[Dict] = None,
         comm_vocab_size: Optional[int] = None,
@@ -27,6 +29,8 @@ class QAgent:
         self.lr = learning_rate
         self.gamma = discount
         self.epsilon = epsilon
+        self.min_epsilon = min_epsilon
+        self.epsilon_decay = epsilon_decay
         self.rng = random.Random(seed)
         self.comm_vocab_size = comm_vocab_size
 
@@ -112,5 +116,6 @@ class QAgent:
         self.q[state][action_index] += self.lr * td_error
 
     def record_episode(self):
-        """Optionally called after each episode for epsilon decay or logging."""
-        pass
+        """Called after each episode for epsilon decay or logging."""
+        # Simple multiplicative decay to avoid getting stuck in bad deterministic cycles.
+        self.epsilon = max(self.min_epsilon, self.epsilon * self.epsilon_decay)

@@ -1,4 +1,15 @@
-"""Train independent Q-learning agents with communication."""
+"""Train independent Q-learning agents with communication.
+
+This version uses the police–civilian bomb environment, where:
+- One bomb spawns per episode.
+- Only the police agent (id=0) can defuse the bomb.
+- Civilians can see the bomb locally but cannot defuse it.
+
+Here, agents can send discrete messages each step. The expectation
+is that civilians learn to communicate bomb-related information to
+the police, improving the defusal success rate compared to the
+baseline in `train_baseline.py`.
+"""
 
 import argparse
 import os
@@ -6,8 +17,9 @@ import pickle
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
+import numpy as np
 
-from env.grid_world import GridWorldEnv, Action
+from env.police_bomb_env import GridWorldEnv, Action
 from agents.q_agent import QAgent
 
 
@@ -36,7 +48,7 @@ def run_episode(env: GridWorldEnv, agents: dict, explore: bool):
 
 
 def train(
-    episodes: int = 500,
+    episodes: int = 2000,
     seed: int = 0,
     plot: bool = False,
     output_dir: str = "results/comm",
@@ -59,7 +71,11 @@ def train(
         explore = ep < episodes // 2
         total_reward, info = run_episode(env, agents, explore)
         episode_rewards.append(sum(total_reward.values()) / env.n_agents)
-        success_rate.append(1.0 if len(info["collected"]) > 0 else 0.0)
+        # success = bomb defused at least once in the episode
+        success_rate.append(1.0 if info.get("bomb_defused", False) else 0.0)
+
+        for agent in agents.values():
+            agent.record_episode()
 
     # save model (Q-tables + env config)
     model = {
@@ -83,7 +99,18 @@ def train(
         pickle.dump(model, f)
 
     if plot:
-        plt.plot(episode_rewards, label="avg reward")
+        episodes_axis = np.arange(1, episodes + 1)
+        window = max(1, episodes // 20)
+
+        # Smoothed average reward
+        rewards_arr = np.array(episode_rewards)
+        if window > 1:
+            kernel = np.ones(window) / window
+            rewards_ma = np.convolve(rewards_arr, kernel, mode="valid")
+            x_rewards = np.arange(window, episodes + 1)
+            plt.plot(x_rewards, rewards_ma, label=f"avg reward (MA {window})")
+        else:
+            plt.plot(episodes_axis, rewards_arr, label="avg reward")
         plt.title("Communication learning curve")
         plt.xlabel("episode")
         plt.ylabel("average reward")
@@ -92,11 +119,30 @@ def train(
         plt.savefig(os.path.join(output_dir, "learning_curve.png"))
 
         plt.clf()
-        plt.plot(success_rate, label="success")
+
+        # Smoothed success rate
+        success_arr = np.array(success_rate, dtype=float)
+        if window > 1:
+            success_ma = np.convolve(success_arr, kernel, mode="valid")
+            x_success = np.arange(window, episodes + 1)
+            plt.plot(x_success, success_ma, label=f"success (MA {window})")
+        else:
+            plt.plot(episodes_axis, success_arr, label="success")
         plt.xlabel("episode")
         plt.ylabel("success")
         plt.tight_layout()
         plt.savefig(os.path.join(output_dir, "success_rate.png"))
+
+    # Simple textual summary for quick comparison
+    last_window = min(100, len(success_rate))
+    if last_window > 0:
+        avg_succ = float(np.mean(success_rate[-last_window:]))
+        avg_reward_tail = float(np.mean(episode_rewards[-last_window:]))
+        print(
+            f"[comm] episodes={episodes}, "
+            f"last_{last_window}_avg_success={avg_succ:.3f}, "
+            f"last_{last_window}_avg_reward={avg_reward_tail:.3f}"
+        )
 
     return {
         "episode_rewards": episode_rewards,
@@ -106,7 +152,7 @@ def train(
 
 def main():
     parser = argparse.ArgumentParser(description="Train Q-learning agents with communication.")
-    parser.add_argument("--episodes", type=int, default=500)
+    parser.add_argument("--episodes", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--plot", action="store_true")
     parser.add_argument("--output", type=str, default="results/comm")
