@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Data / results
+results/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Notebook checkpoints
+.ipynb_checkpoints/
