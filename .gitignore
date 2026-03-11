@@ -13,9 +13,9 @@ venv/
 .idea/
 
 # Data / results
-results/
-models/
-*.pkl
+# results/
+# models/
+# *.pkl
 
 # macOS
 .DS_Store
