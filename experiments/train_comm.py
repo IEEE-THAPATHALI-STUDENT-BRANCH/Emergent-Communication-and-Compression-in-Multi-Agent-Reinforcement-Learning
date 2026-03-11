@@ -54,7 +54,7 @@ def train(
     output_dir: str = "results/comm",
 ):
     os.makedirs(output_dir, exist_ok=True)
-    env = GridWorldEnv(communication_enabled=True)
+    env = GridWorldEnv(communication_enabled=True, n_civilians=3)
     agents = {
         i: QAgent(
             agent_id=i,

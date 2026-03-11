@@ -1,0 +1,30 @@
+{
+  "world": {
+    "num_objects": 5,
+    "colors": ["red", "blue", "green"],
+    "shapes": ["square", "circle", "triangle"],
+    "sizes": ["small", "large"]
+  },
+  "channel": {
+    "vocabulary_size": 10,
+    "message_length": 3
+  },
+  "training": {
+    "episodes": 5000,
+    "batch_size": 32,
+    "speaker_lr": 0.001,
+    "listener_lr": 0.001,
+    "gamma": 1.0,
+    "entropy_coeff": 0.01,
+    "seed": 0,
+    "log_interval": 1000,
+    "checkpoint_dir": "referential_game/checkpoints"
+  },
+  "agents": {
+    "speaker_hidden_dim": 64,
+    "listener_hidden_dim": 64
+  },
+  "evaluation": {
+    "episodes": 10000
+  }
+}
