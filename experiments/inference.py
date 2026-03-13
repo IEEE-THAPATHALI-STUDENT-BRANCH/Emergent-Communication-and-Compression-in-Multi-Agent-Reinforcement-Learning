@@ -1,7 +1,7 @@
 """Run an inference episode using a saved Q-learning model (pickle file).
 
 This script loads a saved model (Q-tables for each agent + env config) and runs
-one or more episodes while rendering the grid world.
+one or more episodes while rendering the police–civilian bomb grid world.
 """
 
 import argparse
@@ -9,7 +9,7 @@ import os
 import pickle
 import time
 
-from env.grid_world import GridWorldEnv, Action
+from env.police_bomb_env import GridWorldEnv, Action
 from agents.q_agent import QAgent
 
 try:
@@ -27,16 +27,21 @@ def load_model(path: str):
 
 def _init_pygame(env: GridWorldEnv, cell_size: int = 50, margin: int = 2):
     pygame.init()
-    window_size = (env.width * cell_size + margin * 2, env.height * cell_size + margin * 2)
+    # Extra vertical space for message/status text at the bottom
+    window_size = (
+        env.width * cell_size + margin * 2,
+        env.height * cell_size + margin * 2 + 40,
+    )
     screen = pygame.display.set_mode(window_size)
-    pygame.display.set_caption("GridWorld Inference")
+    pygame.display.set_caption("Police–Bomb GridWorld Inference")
     return screen, cell_size, margin
 
 
 def _draw_pygame(env: GridWorldEnv, screen, cell_size: int, margin: int):
     background = (30, 30, 30)
-    resource_color = (200, 180, 0)
-    agent_colors = [(200, 80, 80), (80, 200, 80), (80, 120, 220), (200, 120, 200), (120, 200, 200)]
+    bomb_color = (230, 200, 40)
+    police_color = (80, 160, 240)
+    civilian_color = (120, 220, 120)
 
     screen.fill(background)
 
@@ -50,17 +55,19 @@ def _draw_pygame(env: GridWorldEnv, screen, cell_size: int, margin: int):
             )
             pygame.draw.rect(screen, (50, 50, 50), rect, 1)
 
-    for rx, ry in env.resources:
+    # Bomb (if not defused)
+    if not env.bomb_defused:
+        bx, by = env.bomb_pos
         rect = pygame.Rect(
-            margin + rx * cell_size,
-            margin + ry * cell_size,
+            margin + bx * cell_size,
+            margin + by * cell_size,
             cell_size - margin,
             cell_size - margin,
         )
-        pygame.draw.rect(screen, resource_color, rect)
+        pygame.draw.rect(screen, bomb_color, rect)
 
     for agent in env.agents:
-        color = agent_colors[agent.id % len(agent_colors)]
+        color = police_color if getattr(agent, "role", "civilian") == "police" else civilian_color
         rect = pygame.Rect(
             margin + agent.pos[0] * cell_size,
             margin + agent.pos[1] * cell_size,
@@ -76,7 +83,7 @@ def _draw_pygame(env: GridWorldEnv, screen, cell_size: int, margin: int):
             f"A{a.id}:{a.last_message if a.last_message is not None else '-'}" for a in env.agents
         )
         label = pygame.font.SysFont(None, 20).render(text, True, (230, 230, 230))
-        screen.blit(label, (margin, env.height * cell_size + margin - 20))
+        screen.blit(label, (margin, env.height * cell_size + margin + 10))
 
     pygame.display.flip()
 
@@ -155,7 +162,9 @@ def run_inference(
             time.sleep(render_delay)
 
         print(
-            f"Episode {ep} finished in {step} steps, total_reward={total_reward:.1f}, collected={len(info['collected'])}"
+            f"Episode {ep} finished in {step} steps, "
+            f"total_reward={total_reward:.1f}, "
+            f"bomb_defused={info.get('bomb_defused', False)}"
         )
 
     if use_pygame:

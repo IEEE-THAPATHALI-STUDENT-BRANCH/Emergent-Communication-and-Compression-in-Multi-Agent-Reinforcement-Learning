@@ -13,8 +13,8 @@ venv/
 .idea/
 
 # Data / results
-results/
-models/
+# results/
+# models/
 *.pkl
 
 # macOS
