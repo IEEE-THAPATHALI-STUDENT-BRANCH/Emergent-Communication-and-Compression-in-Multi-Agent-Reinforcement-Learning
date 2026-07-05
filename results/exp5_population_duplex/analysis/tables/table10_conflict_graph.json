@@ -1,0 +1,7 @@
+{
+  "nodes": 48,
+  "edges": 696,
+  "density": 0.6170212765957447,
+  "greedy_coloring_upper_bound": 19,
+  "maximum_clique_lower_bound": 16
+}

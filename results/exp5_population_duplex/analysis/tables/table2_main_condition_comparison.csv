@@ -1,0 +1,2 @@
+feedback_length,initial_length,noise_corruption_rate,response_length,return,source,success,total_length
+2.0,2.93,0.09325,2.89,0.013600000000000001,results\exp5_population_duplex\quick_eval\metrics_id_none.json,0.17,7.82

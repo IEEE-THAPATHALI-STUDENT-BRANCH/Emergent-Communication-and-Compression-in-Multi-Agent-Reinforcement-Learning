@@ -1,0 +1,79 @@
+{
+  "experiment_name": "Experiment 5: Population-Level Duplex Emergent Communication Under Constraints",
+  "mode": "paper",
+  "output_dir": "results/exp5_population_duplex/paper",
+  "world": {
+    "num_colors": 4,
+    "num_shapes": 4,
+    "num_sizes": 3,
+    "num_candidates": 6
+  },
+  "model": {
+    "attribute_embedding_dim": 32,
+    "token_embedding_dim": 32,
+    "hidden_dim": 128,
+    "gru_layers": 1,
+    "population_size": 6
+  },
+  "training": {
+    "seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "folds": [0, 1, 2, 3],
+    "batches": 10000,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "gradient_clip_norm": 1.0,
+    "entropy_coefficient": 0.01,
+    "critic_loss_weight": 0.5,
+    "log_interval": 100
+  },
+  "evaluation": {
+    "episodes": 2000,
+    "noise_levels": [0.0, 0.05, 0.1, 0.2]
+  },
+  "conditions": {
+    "no_comm": {
+      "kind": "no_comm",
+      "vocabulary_size": 32,
+      "l_initial": 0,
+      "l_feedback": 0,
+      "l_response": 0,
+      "lambda_cost": 0.0,
+      "p_noise": 0.0
+    },
+    "one_way": {
+      "kind": "one_way",
+      "vocabulary_size": 32,
+      "l_initial": 8,
+      "l_feedback": 0,
+      "l_response": 0,
+      "lambda_cost": 0.02,
+      "p_noise": 0.10
+    },
+    "duplex_direct": {
+      "kind": "duplex",
+      "vocabulary_size": 32,
+      "l_initial": 3,
+      "l_feedback": 2,
+      "l_response": 3,
+      "lambda_cost": 0.02,
+      "p_noise": 0.10
+    },
+    "duplex_curriculum": {
+      "kind": "duplex_curriculum",
+      "stages": [
+        {"vocabulary_size": 64, "l_initial": 4, "l_feedback": 3, "l_response": 4, "lambda_cost": 0.0, "p_noise": 0.0},
+        {"vocabulary_size": 32, "l_initial": 3, "l_feedback": 2, "l_response": 3, "lambda_cost": 0.0, "p_noise": 0.0},
+        {"vocabulary_size": 32, "l_initial": 3, "l_feedback": 2, "l_response": 3, "lambda_cost": 0.02, "p_noise": 0.0},
+        {"vocabulary_size": 32, "l_initial": 3, "l_feedback": 2, "l_response": 3, "lambda_cost": 0.02, "p_noise": 0.10}
+      ]
+    }
+  },
+  "capacity_sweep": {
+    "vocabulary_sizes": [8, 16, 32, 64],
+    "l_initial": 3,
+    "l_feedback": 2,
+    "l_response": 3,
+    "lambda_cost": 0.0,
+    "p_noise": 0.0
+  }
+}

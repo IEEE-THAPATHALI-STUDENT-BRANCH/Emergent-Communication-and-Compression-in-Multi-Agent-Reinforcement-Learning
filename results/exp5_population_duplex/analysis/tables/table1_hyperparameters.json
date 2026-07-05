@@ -1,0 +1,31 @@
+{
+  "world": {
+    "num_colors": 4,
+    "num_shapes": 4,
+    "num_sizes": 3,
+    "num_candidates": 6
+  },
+  "model": {
+    "attribute_embedding_dim": 32,
+    "token_embedding_dim": 32,
+    "hidden_dim": 128,
+    "gru_layers": 1,
+    "population_size": 6
+  },
+  "training": {
+    "seeds": [
+      0,
+      1
+    ],
+    "folds": [
+      0
+    ],
+    "batches": 25,
+    "batch_size": 16,
+    "learning_rate": 0.001,
+    "gradient_clip_norm": 1.0,
+    "entropy_coefficient": 0.01,
+    "critic_loss_weight": 0.5,
+    "log_interval": 5
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "success": 0.17,
+  "return": 0.0136,
+  "total_length": 7.82,
+  "initial_length": 2.93,
+  "feedback_length": 2.0,
+  "response_length": 2.89,
+  "noise_corruption_rate": 0.09842857142857142
+}

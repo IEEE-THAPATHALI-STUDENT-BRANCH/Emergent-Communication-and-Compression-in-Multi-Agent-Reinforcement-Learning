@@ -55,3 +55,15 @@ If `pygame` is not installed, it will fall back to text rendering.
 
 - The environment is intentionally simple to focus on communication dynamics.
 - This repository is set up to be extended for additional experiments described in `docs/experiment_plan.md`.
+
+## Experiment 5
+
+The population-level duplex communication experiment lives in `exp5_population_duplex/` with configs in `configs/`.
+
+Quick smoke test:
+
+```bash
+python -m exp5_population_duplex.training --config configs/exp5_population_duplex_quick.yaml --condition duplex_direct --fold 0 --seed 0
+```
+
+See `exp5_population_duplex/README.md` for the full runbook.
